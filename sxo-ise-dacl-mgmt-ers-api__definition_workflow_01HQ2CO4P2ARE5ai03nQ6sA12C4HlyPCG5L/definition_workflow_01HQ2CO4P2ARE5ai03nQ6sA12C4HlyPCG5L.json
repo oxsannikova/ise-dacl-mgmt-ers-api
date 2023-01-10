@@ -1,0 +1,680 @@
+{
+  "workflow": {
+    "unique_name": "definition_workflow_01HQ2CO4P2ARE5ai03nQ6sA12C4HlyPCG5L",
+    "name": "ISE dACL MODIFIER",
+    "title": "ISE dACL MODIFIER",
+    "type": "generic.workflow",
+    "base_type": "workflow",
+    "variables": [
+      {
+        "schema_id": "datatype.string",
+        "properties": {
+          "value": "",
+          "scope": "local",
+          "name": "ACL_ID",
+          "type": "datatype.string",
+          "is_required": false,
+          "is_invisible": false
+        },
+        "unique_name": "variable_workflow_01HQ2CO4DHENU28HqDTP9uNbpGcUM2Aqp79",
+        "object_type": "variable_workflow"
+      },
+      {
+        "schema_id": "tabletype_01FZRAN5F854L6ccUYNtD4Hzz7J3oQbt45m",
+        "properties": {
+          "scope": "local",
+          "name": "ISE_ACLs",
+          "type": "datatype.table",
+          "is_required": false,
+          "is_invisible": false
+        },
+        "unique_name": "variable_workflow_01HQ2CO4DHK2H6tl0e2dTHjzp1nuglo695e",
+        "object_type": "variable_workflow"
+      },
+      {
+        "schema_id": "datatype.string",
+        "properties": {
+          "value": "deny udp any eq 404 host 4.4.4.4 eq 404",
+          "scope": "input",
+          "name": "NEW_ACL_LINE",
+          "type": "datatype.string",
+          "is_required": false,
+          "is_invisible": false
+        },
+        "unique_name": "variable_workflow_01HQ2CO4DHIO46YqsVChOo5BS0IWv9lTSeu",
+        "object_type": "variable_workflow"
+      }
+    ],
+    "properties": {
+      "atomic": {
+        "is_atomic": false
+      },
+      "delete_workflow_instance": false,
+      "display_name": "ISE dACL MODIFIER",
+      "runtime_user": {
+        "target_default": true
+      },
+      "target": {
+        "execute_on_target_group": true,
+        "target_group": {
+          "target_group_id": "target_group_01EJ0TQWPQWBD0qiWqClJKj9FOzwiZRfOFH",
+          "run_on_all_targets": false,
+          "selected_target_types": [
+            "web-service.endpoint"
+          ],
+          "use_criteria": {
+            "choose_target_using_algorithm": "choose_first_with_matching_criteria",
+            "conditions": [
+              {
+                "operator": "eq",
+                "left_operand": "$targetgroup.web-service endpoint.input.display_name$",
+                "right_operand": "ISE_ERS_Target"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "object_type": "definition_workflow",
+    "actions": [
+      {
+        "unique_name": "definition_activity_01HQ2CQ1SJ8SI6nHIkPBlF9JgVaVqImzqzU",
+        "name": "HTTP Request",
+        "title": "GET ACL LIST",
+        "type": "web-service.http_request",
+        "base_type": "activity",
+        "properties": {
+          "accept": "application/json",
+          "action_timeout": 180,
+          "allow_auto_redirect": true,
+          "allow_headers_redirect": false,
+          "continue_on_error_status_code": false,
+          "continue_on_failure": false,
+          "custom_headers": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "display_name": "GET ACL LIST",
+          "method": "GET",
+          "relative_url": "/ers/config/downloadableacl",
+          "runtime_user": {
+            "override_target_runtime_user": false,
+            "target_default": true
+          },
+          "skip_execution": false,
+          "target": {
+            "use_workflow_target_group": true
+          }
+        },
+        "object_type": "definition_activity"
+      },
+      {
+        "unique_name": "definition_activity_01HQ2CQ7PY2LX0RwkUdNePivtRTrgmxGZCP",
+        "name": "Read Table from JSON",
+        "title": "GET ACL IDs",
+        "type": "corejava.read_table_from_json",
+        "base_type": "activity",
+        "properties": {
+          "action_timeout": 180,
+          "continue_on_failure": false,
+          "display_name": "GET ACL IDs",
+          "input_json": "$activity.definition_activity_01HQ2CQ1SJ8SI6nHIkPBlF9JgVaVqImzqzU.output.response_body$",
+          "jsonpath_query": "$.SearchResult.resources[*]",
+          "persist_output": true,
+          "populate_columns": false,
+          "skip_execution": false,
+          "table_columns": [
+            {
+              "column_name": "id",
+              "column_type": "string"
+            }
+          ]
+        },
+        "object_type": "definition_activity"
+      },
+      {
+        "unique_name": "definition_activity_01HQ2CQFM54HD2xladqDlshYga1xxUXgryr",
+        "name": "For Each",
+        "title": "RETREIVE dACLs FROM ISE",
+        "type": "logic.for_each",
+        "base_type": "activity",
+        "properties": {
+          "continue_on_failure": false,
+          "display_name": "RETREIVE dACLs FROM ISE",
+          "skip_execution": false,
+          "source_array": "$activity.definition_activity_01HQ2CQ7PY2LX0RwkUdNePivtRTrgmxGZCP.output.read_table_from_json$"
+        },
+        "object_type": "definition_activity",
+        "actions": [
+          {
+            "unique_name": "definition_activity_01HQ2CQO1REFU6fhovGjUG4vSR2ckcbrvEd",
+            "name": "Set Variables",
+            "title": "SET dACL ID",
+            "type": "core.set_multiple_variables",
+            "base_type": "activity",
+            "properties": {
+              "continue_on_failure": false,
+              "display_name": "SET dACL ID",
+              "skip_execution": false,
+              "variables_to_update": [
+                {
+                  "variable_to_update": "$workflow.definition_workflow_01HQ2CO4P2ARE5ai03nQ6sA12C4HlyPCG5L.local.variable_workflow_01HQ2CO4DHENU28HqDTP9uNbpGcUM2Aqp79$",
+                  "variable_value_new": "$activity.definition_activity_01HQ2CQFM54HD2xladqDlshYga1xxUXgryr.input.source_array[@].id$"
+                }
+              ]
+            },
+            "object_type": "definition_activity"
+          },
+          {
+            "unique_name": "definition_activity_01HQ2CQV5JHI46DVe1FSopnnhWcn9ik7adB",
+            "name": "HTTP Request",
+            "title": "GET ACL DETAILS",
+            "type": "web-service.http_request",
+            "base_type": "activity",
+            "properties": {
+              "accept": "application/json",
+              "action_timeout": 180,
+              "allow_auto_redirect": true,
+              "allow_headers_redirect": false,
+              "continue_on_error_status_code": false,
+              "continue_on_failure": false,
+              "custom_headers": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "display_name": "GET ACL DETAILS",
+              "method": "GET",
+              "relative_url": "/ers/config/downloadableacl/$workflow.definition_workflow_01HQ2CO4P2ARE5ai03nQ6sA12C4HlyPCG5L.local.variable_workflow_01HQ2CO4DHENU28HqDTP9uNbpGcUM2Aqp79$",
+              "runtime_user": {
+                "override_target_runtime_user": false,
+                "target_default": true
+              },
+              "skip_execution": false,
+              "target": {
+                "use_workflow_target_group": true
+              }
+            },
+            "object_type": "definition_activity"
+          },
+          {
+            "unique_name": "definition_activity_01HQ2CR12YCOM24GN20F3294oyi6mEkpqzm",
+            "name": "Parallel Block",
+            "title": "READ ACL DETAILS",
+            "type": "logic.parallel",
+            "base_type": "activity",
+            "properties": {
+              "continue_on_failure": false,
+              "display_name": "READ ACL DETAILS",
+              "skip_execution": false
+            },
+            "object_type": "definition_activity",
+            "blocks": [
+              {
+                "unique_name": "definition_activity_01HQ2CR6U7YV84qENKkTaRnlvjGkfrjcT5c",
+                "name": "Parallel Branch",
+                "title": "ID",
+                "type": "logic.parallel_block",
+                "base_type": "activity",
+                "properties": {
+                  "continue_on_failure": false,
+                  "display_name": "ID",
+                  "skip_execution": false
+                },
+                "object_type": "definition_activity",
+                "actions": [
+                  {
+                    "unique_name": "definition_activity_01HQ2CRCUF34E5jWkQ9tV7l97cpOv3nzSa1",
+                    "name": "JSONPath Query",
+                    "title": "Read ID",
+                    "type": "corejava.jsonpathquery",
+                    "base_type": "activity",
+                    "properties": {
+                      "action_timeout": 180,
+                      "continue_on_failure": false,
+                      "display_name": "Read ID",
+                      "input_json": "$activity.definition_activity_01HQ2CQV5JHI46DVe1FSopnnhWcn9ik7adB.output.response_body$",
+                      "jsonpath_queries": [
+                        {
+                          "jsonpath_query": "$.DownloadableAcl.id",
+                          "jsonpath_query_name": "id",
+                          "jsonpath_query_type": "string"
+                        }
+                      ],
+                      "skip_execution": false
+                    },
+                    "object_type": "definition_activity"
+                  }
+                ]
+              },
+              {
+                "unique_name": "definition_activity_01HQ2CRJMWZJA697iM7Axnp6iL0DsxEAp5J",
+                "name": "Parallel Branch",
+                "title": "NAME",
+                "type": "logic.parallel_block",
+                "base_type": "activity",
+                "properties": {
+                  "continue_on_failure": false,
+                  "display_name": "NAME",
+                  "skip_execution": false
+                },
+                "object_type": "definition_activity",
+                "actions": [
+                  {
+                    "unique_name": "definition_activity_01HQ2CROC7Q060L6ZZzIomftaHuzyAzbXNd",
+                    "name": "JSONPath Query",
+                    "title": "Read NAME",
+                    "type": "corejava.jsonpathquery",
+                    "base_type": "activity",
+                    "properties": {
+                      "action_timeout": 180,
+                      "continue_on_failure": false,
+                      "display_name": "Read NAME",
+                      "input_json": "$activity.definition_activity_01HQ2CQV5JHI46DVe1FSopnnhWcn9ik7adB.output.response_body$",
+                      "jsonpath_queries": [
+                        {
+                          "jsonpath_query": "$.DownloadableAcl.name",
+                          "jsonpath_query_name": "name",
+                          "jsonpath_query_type": "string"
+                        }
+                      ],
+                      "skip_execution": false
+                    },
+                    "object_type": "definition_activity"
+                  }
+                ]
+              },
+              {
+                "unique_name": "definition_activity_01HQ2CRUZ47U750pXVJUd7mhcOyK7XxIyBk",
+                "name": "Parallel Branch",
+                "title": "ACL",
+                "type": "logic.parallel_block",
+                "base_type": "activity",
+                "properties": {
+                  "continue_on_failure": false,
+                  "display_name": "ACL",
+                  "skip_execution": false
+                },
+                "object_type": "definition_activity",
+                "actions": [
+                  {
+                    "unique_name": "definition_activity_01HQ2CRZK3DRW4zfhgMWWQBI8ZY8vi3xLF4",
+                    "name": "JSONPath Query",
+                    "title": "Read ACL",
+                    "type": "corejava.jsonpathquery",
+                    "base_type": "activity",
+                    "properties": {
+                      "action_timeout": 180,
+                      "continue_on_failure": false,
+                      "display_name": "Read ACL",
+                      "input_json": "$activity.definition_activity_01HQ2CQV5JHI46DVe1FSopnnhWcn9ik7adB.output.response_body$",
+                      "jsonpath_queries": [
+                        {
+                          "jsonpath_query": "$.DownloadableAcl.dacl",
+                          "jsonpath_query_name": "dacl",
+                          "jsonpath_query_type": "string"
+                        }
+                      ],
+                      "skip_execution": false
+                    },
+                    "object_type": "definition_activity"
+                  }
+                ]
+              },
+              {
+                "unique_name": "definition_activity_01HQ2CS6G5FG45ha09Ve5wt09bFv2DG33vh",
+                "name": "Parallel Branch",
+                "title": "daclType",
+                "type": "logic.parallel_block",
+                "base_type": "activity",
+                "properties": {
+                  "continue_on_failure": false,
+                  "display_name": "daclType",
+                  "skip_execution": false
+                },
+                "object_type": "definition_activity",
+                "actions": [
+                  {
+                    "unique_name": "definition_activity_01HQ2CSB7HDSE6IgSgB3slExEBNHtP2TfOx",
+                    "name": "JSONPath Query",
+                    "title": "Read daclType",
+                    "type": "corejava.jsonpathquery",
+                    "base_type": "activity",
+                    "properties": {
+                      "action_timeout": 180,
+                      "continue_on_failure": false,
+                      "display_name": "Read daclType",
+                      "input_json": "$activity.definition_activity_01HQ2CQV5JHI46DVe1FSopnnhWcn9ik7adB.output.response_body$",
+                      "jsonpath_queries": [
+                        {
+                          "jsonpath_query": "$.DownloadableAcl.daclType",
+                          "jsonpath_query_name": "daclType",
+                          "jsonpath_query_type": "string"
+                        }
+                      ],
+                      "skip_execution": false
+                    },
+                    "object_type": "definition_activity"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "unique_name": "definition_activity_01HQ2CSIDQ5V73RbAxKCquIO4R7YY8ry1jt",
+            "name": "Add Row to Table",
+            "title": "Add Row to Table",
+            "type": "core.addrowtotable",
+            "base_type": "activity",
+            "properties": {
+              "action_timeout": 180,
+              "continue_on_failure": false,
+              "display_name": "Add Row to Table",
+              "input_table": "$workflow.definition_workflow_01HQ2CO4P2ARE5ai03nQ6sA12C4HlyPCG5L.local.variable_workflow_01HQ2CO4DHK2H6tl0e2dTHjzp1nuglo695e$",
+              "row": [
+                {
+                  "key": "id",
+                  "type": "string",
+                  "value": "$activity.definition_activity_01HQ2CRCUF34E5jWkQ9tV7l97cpOv3nzSa1.output.jsonpath_queries.id$"
+                },
+                {
+                  "key": "name",
+                  "type": "string",
+                  "value": "$activity.definition_activity_01HQ2CROC7Q060L6ZZzIomftaHuzyAzbXNd.output.jsonpath_queries.name$"
+                },
+                {
+                  "key": "dacl",
+                  "type": "string",
+                  "value": "$workflow.definition_workflow_01HQ2CO4P2ARE5ai03nQ6sA12C4HlyPCG5L.input.variable_workflow_01HQ2CO4DHIO46YqsVChOo5BS0IWv9lTSeu$\\n$activity.definition_activity_01HQ2CRZK3DRW4zfhgMWWQBI8ZY8vi3xLF4.output.jsonpath_queries.dacl$"
+                },
+                {
+                  "key": "daclType",
+                  "type": "string",
+                  "value": "$activity.definition_activity_01HQ2CSB7HDSE6IgSgB3slExEBNHtP2TfOx.output.jsonpath_queries.daclType$"
+                }
+              ],
+              "skip_execution": false
+            },
+            "object_type": "definition_activity"
+          }
+        ]
+      },
+      {
+        "unique_name": "definition_activity_01HQ2CSQU68HX4MRxkZ24iywevRSXWfjStO",
+        "name": "For Each",
+        "title": "UPDATE DACLS IN ISE",
+        "type": "logic.for_each",
+        "base_type": "activity",
+        "properties": {
+          "continue_on_failure": false,
+          "display_name": "UPDATE DACLS IN ISE",
+          "skip_execution": false,
+          "source_array": "$workflow.definition_workflow_01HQ2CO4P2ARE5ai03nQ6sA12C4HlyPCG5L.local.variable_workflow_01HQ2CO4DHK2H6tl0e2dTHjzp1nuglo695e$"
+        },
+        "object_type": "definition_activity",
+        "actions": [
+          {
+            "unique_name": "definition_activity_01HQ2CT1BPJ8P0nwAo15hrie0NEf3hgh2sp",
+            "name": "HTTP Request",
+            "title": "UPDATE ACL",
+            "type": "web-service.http_request",
+            "base_type": "activity",
+            "properties": {
+              "action_timeout": 180,
+              "allow_auto_redirect": true,
+              "allow_headers_redirect": false,
+              "body": "{\n  \"DownloadableAcl\": {\n    \"id\": \"$activity.definition_activity_01HQ2CSQU68HX4MRxkZ24iywevRSXWfjStO.input.source_array[@].id$\",\n    \"name\": \"$activity.definition_activity_01HQ2CSQU68HX4MRxkZ24iywevRSXWfjStO.input.source_array[@].name$\",\n    \"description\": \"ACL updated by AO\",\n    \"dacl\": \"$activity.definition_activity_01HQ2CSQU68HX4MRxkZ24iywevRSXWfjStO.input.source_array[@].dacl$\",\n    \"daclType\": \"$activity.definition_activity_01HQ2CSQU68HX4MRxkZ24iywevRSXWfjStO.input.source_array[@].daclType$\"\n  }\n}",
+              "continue_on_error_status_code": true,
+              "continue_on_failure": false,
+              "custom_headers": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "display_name": "UPDATE ACL",
+              "method": "PUT",
+              "relative_url": "/ers/config/downloadableacl/$activity.definition_activity_01HQ2CSQU68HX4MRxkZ24iywevRSXWfjStO.input.source_array[@].id$",
+              "runtime_user": {
+                "override_target_runtime_user": false,
+                "target_default": true
+              },
+              "skip_execution": false,
+              "target": {
+                "use_workflow_target_group": true
+              }
+            },
+            "object_type": "definition_activity"
+          },
+          {
+            "unique_name": "definition_activity_01HQ2CTAGS05A1vxxKfBWMHO2fWBsf1qLa8",
+            "name": "Post Msg",
+            "title": "Post Msg",
+            "type": "workflow.sub_workflow",
+            "base_type": "subworkflow",
+            "properties": {
+              "continue_on_failure": false,
+              "display_name": "Post Msg",
+              "input": {
+                "variable_workflow_01HQ2COSQJ90T2eOBapyxil159D4JdDz2Lc": "dACL UPDATE ALERT\n\nACL ID:\n[$activity.UPDATE DACLS IN ISE.input.Source Array[@].id$]\n\nACL NAME:\n[$activity.UPDATE DACLS IN ISE.input.Source Array[@].name$]\n\nMESSAGE:\n[$activity.UPDATE ACL.output.Body$]"
+              },
+              "runtime_user": {
+                "target_default": true
+              },
+              "skip_execution": false,
+              "target": {
+                "no_target": true
+              },
+              "workflow_id": "definition_workflow_01HQ2COT1O4RR2DpWiUKzAlE2vUYyB59H2Y",
+              "workflow_name": "Post Msg"
+            },
+            "object_type": "definition_activity"
+          }
+        ]
+      }
+    ],
+    "categories": [
+      "category_01FZPUFKSD49Q0p6Wmn3MmRvdZYHv1hJXGi"
+    ]
+  },
+  "categories": {
+    "category_01FZPUFKSD49Q0p6Wmn3MmRvdZYHv1hJXGi": {
+      "unique_name": "category_01FZPUFKSD49Q0p6Wmn3MmRvdZYHv1hJXGi",
+      "name": "osanniko",
+      "title": "osanniko",
+      "type": "basic.category",
+      "base_type": "category",
+      "category_type": "custom",
+      "object_type": "category"
+    }
+  },
+  "targets": {
+    "definition_target_01GFV0RAKXT9C0NR8TSTvDT875Nkj2e0AVP": {
+      "unique_name": "definition_target_01GFV0RAKXT9C0NR8TSTvDT875Nkj2e0AVP",
+      "name": "Webex_Teams_Target",
+      "title": "Webex_Teams_Target",
+      "type": "web-service.endpoint",
+      "base_type": "target",
+      "object_type": "definition_target",
+      "properties": {
+        "disable_certificate_validation": false,
+        "display_name": "Webex_Teams_Target",
+        "host": "webexapis.com",
+        "ignore_proxy": false,
+        "no_runtime_user": true,
+        "protocol": "https"
+      }
+    }
+  },
+  "target_groups": {
+    "target_group_01EJ0TQWPQWBD0qiWqClJKj9FOzwiZRfOFH": {
+      "unique_name": "target_group_01EJ0TQWPQWBD0qiWqClJKj9FOzwiZRfOFH",
+      "name": "Default TargetGroup",
+      "title": "Default TargetGroup",
+      "type": "generic.target_group",
+      "base_type": "target_group",
+      "version": "1.0.0",
+      "targets": [
+        {
+          "data_target_type": "web-service.endpoint",
+          "view_target_type": "web-service.endpoint",
+          "include_all_targets": true
+        },
+        {
+          "data_target_type": "email.smtp_endpoint",
+          "view_target_type": "email.smtp_endpoint",
+          "include_all_targets": true
+        }
+      ],
+      "object_type": "target_group"
+    }
+  },
+  "variables": {
+    "variable_01APGVROUHRDZ0DIffkz8RMsONHpkg2czcr": {
+      "unique_name": "variable_01APGVROUHRDZ0DIffkz8RMsONHpkg2czcr",
+      "properties": {
+        "value": "Y2lzY29zcGFyazovL3VzL1JPT00vNGFkN2JmMzAtYTA1Yy0xMWVhLWFiNDYtYWQyOWZhZmYzM2Iw",
+        "scope": "global",
+        "name": "RoomId",
+        "type": "datatype.string",
+        "is_required": false,
+        "is_invisible": false
+      },
+      "object_type": "variable"
+    },
+    "variable_01H0BNK7MLU3M6Bcnlz5qZqYbUrp2zVjnTM": {
+      "unique_name": "variable_01H0BNK7MLU3M6Bcnlz5qZqYbUrp2zVjnTM",
+      "properties": {
+        "value": "*****",
+        "scope": "global",
+        "name": "Webex Teams Bot Token",
+        "type": "datatype.secure_string",
+        "is_required": false,
+        "is_invisible": false
+      },
+      "object_type": "variable"
+    }
+  },
+  "table_types": {
+    "tabletype_01FZRAN5F854L6ccUYNtD4Hzz7J3oQbt45m": {
+      "unique_name": "tabletype_01FZRAN5F854L6ccUYNtD4Hzz7J3oQbt45m",
+      "data_type": "datatype.tabletype",
+      "display_name": "ISE_ACL_TABLE2",
+      "columns": [
+        {
+          "name": "dacl",
+          "title": "dacl",
+          "type": "string"
+        },
+        {
+          "name": "daclType",
+          "title": "daclType",
+          "type": "string"
+        },
+        {
+          "is_required": true,
+          "name": "id",
+          "title": "id",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "title": "name",
+          "type": "string"
+        }
+      ],
+      "base_type": "datatype",
+      "object_type": "tabletype"
+    }
+  },
+  "subworkflows": [
+    {
+      "workflow": {
+        "unique_name": "definition_workflow_01HQ2COT1O4RR2DpWiUKzAlE2vUYyB59H2Y",
+        "name": "Post Msg",
+        "title": "Post Msg",
+        "type": "generic.workflow",
+        "base_type": "workflow",
+        "variables": [
+          {
+            "schema_id": "datatype.string",
+            "properties": {
+              "value": "",
+              "scope": "input",
+              "name": "msgText",
+              "type": "datatype.string",
+              "is_required": false,
+              "is_invisible": false
+            },
+            "unique_name": "variable_workflow_01HQ2COSQJ90T2eOBapyxil159D4JdDz2Lc",
+            "object_type": "variable_workflow"
+          }
+        ],
+        "properties": {
+          "atomic": {
+            "is_atomic": false
+          },
+          "delete_workflow_instance": false,
+          "display_name": "Post Msg",
+          "runtime_user": {
+            "override_target_runtime_user": false,
+            "specify_on_workflow_start": false,
+            "target_default": true
+          },
+          "target": {
+            "execute_on_target_group": false,
+            "execute_on_workflow_target": false,
+            "no_target": true,
+            "specify_on_workflow_start": false
+          }
+        },
+        "object_type": "definition_workflow",
+        "actions": [
+          {
+            "unique_name": "definition_activity_01HQ2CP9H4H482QyZQ4GHD81s7deyL6JH6i",
+            "name": "HTTP Request",
+            "title": "Post Msg",
+            "type": "web-service.http_request",
+            "base_type": "activity",
+            "properties": {
+              "action_timeout": 180,
+              "allow_auto_redirect": true,
+              "body": "{\n \"markdown\": \"$workflow.definition_workflow_01HQ2COT1O4RR2DpWiUKzAlE2vUYyB59H2Y.input.variable_workflow_01HQ2COSQJ90T2eOBapyxil159D4JdDz2Lc$\",\n \"roomId\": \"$global.variable_01APGVROUHRDZ0DIffkz8RMsONHpkg2czcr.global.variable_01APGVROUHRDZ0DIffkz8RMsONHpkg2czcr$\"\n} ",
+              "content_type": "application/json",
+              "continue_on_error_status_code": false,
+              "continue_on_failure": false,
+              "custom_headers": [
+                {
+                  "name": "Authorization",
+                  "value": "Bearer $global.variable_01H0BNK7MLU3M6Bcnlz5qZqYbUrp2zVjnTM.global.variable_01H0BNK7MLU3M6Bcnlz5qZqYbUrp2zVjnTM$"
+                }
+              ],
+              "display_name": "Post Msg",
+              "method": "POST",
+              "relative_url": "/v1/messages",
+              "runtime_user": {
+                "override_target_runtime_user": false,
+                "target_default": true
+              },
+              "skip_execution": false,
+              "target": {
+                "override_workflow_target": true,
+                "target_id": "definition_target_01GFV0RAKXT9C0NR8TSTvDT875Nkj2e0AVP"
+              }
+            },
+            "object_type": "definition_activity"
+          }
+        ],
+        "categories": [
+          "category_1BMfMXSnJMyt5Ihqi7rWJr5N8cf"
+        ]
+      }
+    }
+  ],
+  "dependent_workflows": [
+    "definition_workflow_01HQ2COT1O4RR2DpWiUKzAlE2vUYyB59H2Y"
+  ]
+}
