@@ -23,7 +23,4 @@ This SecureX Orchestration workflow will add one ACL line at the end of each dow
 **Target Group:** Default TargetGroup
 | Target Name |	Type |	Details |	Account Keys |	Notes |
 |-------------|------|--------|--------|--------|
-|ISE_ERS_Target |	HTTP Endpoint |	Protocol: HTTPS| ISE_ERS_Credentials |	 |
-Host: ISE Primary Admin Node
-Port: 9060
-Path: None |	
+|ISE_ERS_Target |	HTTP Endpoint |	Protocol: HTTPS<br>Host: ISE Primary Admin Node<br>Port: 9060<br>Path: None| ISE_ERS_Credentials |	 |
