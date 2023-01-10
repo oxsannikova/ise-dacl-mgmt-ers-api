@@ -1,0 +1,5 @@
+colorama
+crayons
+pathlib
+requests
+urllib3
