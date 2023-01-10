@@ -2,7 +2,7 @@
 
 ## Python Script
 
-What this script will do:
+What this [script](https://github.com/oxsannikova/ise-dacl-mgmt-ers-api/tree/main/python-ise-acl-mgmt-ers-api) will do:
 * Take the unmber of lines to add to each ACL and each ACL entry as an input.
 * Save the original ACLs to a csv file.
 * Append provided entries to all ACLs __ise-acl-list-old.csv__.
@@ -12,7 +12,7 @@ Please take a look at the [demo](https://www.youtube.com/watch?v=zyQevR7SGZU) th
 
 ## SecureX Orchestration
 
-This SecureX Orchestration workflow will add one ACL line at the end of each downloadable ACL list in ISE configuration. 
+This [SecureX Orchestration workflow](https://github.com/oxsannikova/ise-dacl-mgmt-ers-api/tree/main/sxo-ise-acl-mgmt-ers-api) will add one ACL line at the end of each downloadable ACL list in ISE configuration. 
 
 ## Requirements
 
