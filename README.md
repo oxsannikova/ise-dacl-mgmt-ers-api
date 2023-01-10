@@ -24,3 +24,8 @@ This [SecureX Orchestration workflow](https://github.com/oxsannikova/ise-dacl-mg
 | Target Name |	Type |	Details |	Account Keys |	Notes |
 |-------------|------|--------|--------|--------|
 |ISE_ERS_Target |	HTTP Endpoint |	Protocol: HTTPS<br>Host: ISE Primary Admin Node<br>Port: 9060<br>Path: None| ISE_ERS_Credentials |	 |
+
+# Resources
+
+* [ISE API Documentation](https://developer.cisco.com/docs/identity-services-engine/v1/#!cisco-ise-api-framework)
+* [ISE downloadable ACL API Reference](https://developer.cisco.com/docs/identity-services-engine/v1/#!downloadableacl)
